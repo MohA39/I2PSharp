@@ -1,5 +1,7 @@
 
-![Banner](https://i.postimg.cc/90F1sxWj/Banner2.png)
+<p align="center">
+  <img src="https://i.postimg.cc/90F1sxWj/Banner2.png" />
+</p>
 
 
 I2PSharp is a .NETStandard 2.0 implementation of the I2P anonymous network layer SAM v3.3 protocol outlined on the [official I2P website](https://geti2p.net/en/docs/api/samv3). It aims to provide developers with a jumpstart into the world of censorship-resistant, peer-to-peer applications with the least-possible learning curve and the most flexibility.
