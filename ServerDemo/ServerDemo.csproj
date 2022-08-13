@@ -7,4 +7,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\I2PSharp\I2PSharp.csproj" />
+  </ItemGroup>
+
 </Project>
