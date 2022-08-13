@@ -112,7 +112,7 @@ namespace I2PSharp
             }
             return Port;
         }
-        public (string argument, int? port) PortToCommandArgument(string arg, int? port)
+        private (string argument, int? port) PortToCommandArgument(string arg, int? port)
         {
             if (port.HasValue)
             {

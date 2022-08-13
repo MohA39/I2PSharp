@@ -27,7 +27,7 @@ new Thread(new ThreadStart(async () =>
     while (true)
     {
         // Wait for a connection
-        PeerConnection cs = await subsession.AcceptConnection();
+        PeerConnection cs = await subsession.AcceptConnectionAsync();
         cs.OnMessage += Cs_OnMessage;
         cs.OnDisconnect += Cs_OnDisconnect;
 

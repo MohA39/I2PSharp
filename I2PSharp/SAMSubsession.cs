@@ -36,7 +36,7 @@ namespace I2PSharp
             IsAcceptingConnections = false;
         }
 
-        public async Task<PeerConnection> Connect(string Destination, int FromPort = 0, int ToPort = 0, bool WaitForMessages = true)
+        public async Task<PeerConnection> ConnectAsync(string Destination, int FromPort = 0, int ToPort = 0, bool WaitForMessages = true)
         {
             SAMConnection connection = new SAMConnection(_SAMPort);
             await connection.ConnectAsync();
@@ -69,7 +69,7 @@ namespace I2PSharp
             }
         }
 
-        public async Task<PeerConnection> AcceptConnection(bool WaitForMessages = true)
+        public async Task<PeerConnection> AcceptConnectionAsync(bool WaitForMessages = true)
         {
             SAMConnection connection = new SAMConnection(_SAMPort);
             await connection.ConnectAsync();

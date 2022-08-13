@@ -21,7 +21,7 @@ Console.Write("Server public key: ");
 string PublicKey = Console.ReadLine();
 
 // Connect to server
-PeerConnection cs = await subsession.Connect(PublicKey);
+PeerConnection cs = await subsession.ConnectAsync(PublicKey);
 cs.OnMessage += Cs_OnMessage;
 cs.OnDisconnect += Cs_OnDisconnect;
 

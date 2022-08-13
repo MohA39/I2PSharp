@@ -82,17 +82,7 @@ namespace I2PSharp
         {
             return await SAMConnection.ReadBytes(Count);
         }
-        public void ClearOnMessage()
-        {
-            if (OnMessage != null)
-            {
-                foreach (Delegate d in OnMessage.GetInvocationList())
-                {
-                    OnMessage -= (MessageHandler)d;
-                }
-            }
-            
-        }
+
         public void StopWaitingForMessages()
         {
             if (!_IsWaitingForMessages) return;
