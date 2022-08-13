@@ -21,7 +21,6 @@ namespace I2PSharp
 
         public bool IsAcceptingConnections { get; private set; }
         public bool IsConnected { get; private set; }
-        private List<PeerConnection> _ConnectedSessions = new List<PeerConnection>();
         public delegate void PeerConnectionHandler(object sender, ConnectionEventArgs e);
         public event PeerConnectionHandler OnConnect;
 
@@ -42,14 +41,14 @@ namespace I2PSharp
             SAMConnection connection = new SAMConnection(_SAMPort);
             await connection.ConnectAsync();
             string Response = await connection.SendCommandAsync($"STREAM CONNECT ID={ID} DESTINATION={Destination} FROM_PORT={FromPort} TO_PORT={ToPort}");
-            
+
             var ParsedResponse = Utils.TryParseResponse(Response);
             if (ParsedResponse.result == SAMResponseResults.OK)
             {
-                
+
                 IsConnected = true;
                 PeerConnection connectedSession = new PeerConnection(Destination, connection);
-                _ConnectedSessions.Add(connectedSession);
+
                 if (OnConnect != null)
                 {
                     ConnectionEventArgs args = new ConnectionEventArgs(connectedSession, ConnectionTypes.AcceptedByPeer);
@@ -89,29 +88,16 @@ namespace I2PSharp
                     ConnectionEventArgs args = new ConnectionEventArgs(connectedSession, ConnectionTypes.AcceptedPeer);
                     OnConnect(this, args);
                 }
-                    
+
                 if (WaitForMessages)
                 {
                     connectedSession.WaitForMessages();
                 }
-                _ConnectedSessions.Add(connectedSession);
+
                 return connectedSession;
             }
             return null;
         }
-        public List<PeerConnection> GetConnectedSessions()
-        {
-            return _ConnectedSessions;
-        }
-        public List<PeerConnection> GetConnectedSessionsByPeerPublicKey(string PeerPublicKey)
-        {
-            return _ConnectedSessions.Where(x => x.PeerPublicKey == PeerPublicKey).ToList();
-        }
-        public List<PeerConnection> GetConnectedSessionsByID(int ID)
-        {
-            return _ConnectedSessions.Where(x => x.ID == ID).ToList();
-        }
-
 
     }
 }
