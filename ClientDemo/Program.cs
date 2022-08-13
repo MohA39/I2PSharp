@@ -25,10 +25,6 @@ PeerConnection cs = await subsession.Connect(PublicKey);
 cs.OnMessage += Cs_OnMessage;
 cs.OnDisconnect += Cs_OnDisconnect;
 
-void Cs_OnDisconnect(object sender, DisconnectEventArgs e)
-{
-    Console.WriteLine("Peer disconnected");
-}
 
 while (true)
 {
@@ -45,3 +41,9 @@ void subsession_OnConnect(object sender, ConnectionEventArgs e)
 {
     Console.WriteLine("Subsession connected to by " + e.ConnectionType);
 }
+
+void Cs_OnDisconnect(object sender, DisconnectEventArgs e)
+{
+    Console.WriteLine("Peer disconnected");
+}
+

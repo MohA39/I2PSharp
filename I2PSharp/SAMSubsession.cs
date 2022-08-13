@@ -70,7 +70,7 @@ namespace I2PSharp
             }
         }
 
-        public async Task<PeerConnection> AcceptConnections(bool WaitForMessages = true)
+        public async Task<PeerConnection> AcceptConnection(bool WaitForMessages = true)
         {
             SAMConnection connection = new SAMConnection(_SAMPort);
             await connection.ConnectAsync();

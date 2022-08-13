@@ -21,12 +21,13 @@ Console.WriteLine("Public key: " + Keys.PublicKey);
 SAMSubsession subsession = await session.CreateSTREAMSubsessionAsync();
 subsession.OnConnect += subsession_OnConnect;
 
+// Accept connections thread
 new Thread(new ThreadStart(async () => 
 {
     while (true)
     {
         // Wait for a connection
-        PeerConnection cs = await subsession.AcceptConnections();
+        PeerConnection cs = await subsession.AcceptConnection();
         cs.OnMessage += Cs_OnMessage;
         cs.OnDisconnect += Cs_OnDisconnect;
 
@@ -46,11 +47,6 @@ while (true)
     }
 }
 
-void Cs_OnDisconnect(object sender, DisconnectEventArgs e)
-{
-    Console.WriteLine("Peer disconnected");
-}
-
 void Cs_OnMessage(object sender, MessageEventArgs e)
 {
     Console.WriteLine("Recieved: " + e.Message);
@@ -60,4 +56,9 @@ void Cs_OnMessage(object sender, MessageEventArgs e)
 void subsession_OnConnect(object sender, ConnectionEventArgs e)
 {
     Console.WriteLine("Subsession connected by " + e.ConnectionType);
+}
+
+void Cs_OnDisconnect(object sender, DisconnectEventArgs e)
+{
+    Console.WriteLine("Peer disconnected");
 }
