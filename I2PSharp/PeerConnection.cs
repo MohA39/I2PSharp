@@ -32,13 +32,13 @@ namespace I2PSharp
             StopWaitingForMessages();
             SAMConnection.Dispose();
         }
-        public void SendString(string message)
+        public async void SendString(string message)
         {
-            SAMConnection.SendString(message);
+            await SAMConnection.SendString(message);
         }
-        public void SendBytes(byte[] message)
+        public async void SendBytes(byte[] message)
         {
-            SAMConnection.SendBytes (message);
+            await SAMConnection.SendBytes (message);
         }
 
         public void WaitForMessages()

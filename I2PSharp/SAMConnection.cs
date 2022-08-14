@@ -19,8 +19,8 @@ namespace I2PSharp
         public bool IsStringReadingPaused { get; set; } = false;
         private readonly int _port;
         private TcpClient _client = new TcpClient();
-        private BinaryReader _reader;
-        private BinaryWriter _writer;
+        private NetworkStream _networkstream;
+        private StreamReader _streamreader;
         private bool _IsDisposed = false;
         public SAMConnection(int SAMPort)
         {
@@ -30,19 +30,15 @@ namespace I2PSharp
         public void Dispose()
         {
             _IsDisposed = true;
-            _reader.Dispose();
-            _writer.Dispose();
+            _networkstream.Dispose();
             _client.Dispose();
         }
         public async Task ConnectAsync()
         {
             await _client.ConnectAsync(IPAddress.Loopback, _port);
 
-            NetworkStream stream = _client.GetStream();
-
-            _reader = new BinaryReader(stream);
-            _writer = new BinaryWriter(stream);
-
+            _networkstream = _client.GetStream();
+            _streamreader = new StreamReader(_networkstream, Encoding.UTF8);
             var CommandResult = await SendCommandAsync("HELLO VERSION");
             if (Utils.TryParseResponse(CommandResult).result == SAMResponseResults.OK)
             {
@@ -52,16 +48,18 @@ namespace I2PSharp
 
         public async Task<string> SendCommandAsync(string Command)
         {
-            _writer.Write(Encoding.UTF8.GetBytes(Command + "\n"));
+            byte[] CommandBytes = Encoding.UTF8.GetBytes(Command + "\n");
+            await _networkstream.WriteAsync(CommandBytes, 0, CommandBytes.Length);
             return await ReadString();
         }
-        public void SendString(string message)
+        public async Task SendString(string message)
         {
-            _writer.Write(Encoding.UTF8.GetBytes(message + "\n"));
+            byte[] MessageBytes = Encoding.UTF8.GetBytes(message + "\n");
+            await _networkstream.WriteAsync(MessageBytes, 0, MessageBytes.Length);
         }
-        public void SendBytes(byte[] message)
+        public async Task SendBytes(byte[] message)
         {
-            _writer.Write(message);
+            await _networkstream.WriteAsync(message, 0, message.Length);
         }
 
         public async Task<byte[]> ReadBytes(int count)
@@ -70,14 +68,16 @@ namespace I2PSharp
             {
                 try
                 {
-                    return _reader.ReadBytes(count);
+                    byte[] BytesRead = new byte[count];
+                    await _networkstream.ReadAsync(BytesRead, 0, count);
+                    return BytesRead;
                 }
                 catch (InvalidOperationException) // To mitigate "The stream is currently in use by a previous operation on the stream."
                 {
                     await Task.Delay(50);
                 }
             }
-            
+
             return null;
         }
 
@@ -87,7 +87,7 @@ namespace I2PSharp
             {
                 try
                 {
-                    return Readline();
+                    return await Readline();
                 }
                 catch (InvalidOperationException) // To mitigate "The stream is currently in use by a previous operation on the stream."
                 {
@@ -98,27 +98,9 @@ namespace I2PSharp
             return null;
         }
 
-        private string Readline()
+        private async Task<string> Readline()
         {
-
-            StringBuilder SB = new StringBuilder();
-            while (true)
-            {
-                if (IsStringReadingPaused)
-                {
-                    return null;
-                }
-                char readchar = _reader.ReadChar();
-
-                if (readchar == '\n')
-                {
-                    break;
-                }
-                SB.Append(readchar);
-            }
-            return SB.ToString();
-
+            return await _streamreader.ReadLineAsync();
         }
-
     }
 }
