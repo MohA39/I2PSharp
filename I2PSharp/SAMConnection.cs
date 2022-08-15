@@ -16,7 +16,6 @@ namespace I2PSharp
     {
 
         public bool IsConnected { get; private set; } = false;
-        public bool IsStringReadingPaused { get; set; } = false;
         private readonly int _port;
         private TcpClient _client = new TcpClient();
         private NetworkStream _networkstream;
@@ -62,14 +61,27 @@ namespace I2PSharp
             await _networkstream.WriteAsync(message, 0, message.Length);
         }
 
-        public async Task<byte[]> ReadBytes(int count)
+        public async Task<byte[]> ReadBytes(int count, int timeout = 0)
         {
+            DateTime starttime = DateTime.Now;
             while (!_IsDisposed)
             {
+                if (timeout > 0)
+                { 
+                    if ((DateTime.Now - starttime).TotalMilliseconds > timeout)
+                    {
+                        return null;
+                    }
+                }
                 try
                 {
                     byte[] BytesRead = new byte[count];
-                    await _networkstream.ReadAsync(BytesRead, 0, count);
+                    int TotalBytesRead = 0;
+                    while (TotalBytesRead != count)
+                    {
+                        TotalBytesRead += await _networkstream.ReadAsync(BytesRead, TotalBytesRead, count - TotalBytesRead);
+                    }
+                    
                     return BytesRead;
                 }
                 catch (InvalidOperationException) // To mitigate "The stream is currently in use by a previous operation on the stream."
