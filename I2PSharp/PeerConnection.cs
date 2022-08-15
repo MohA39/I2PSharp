@@ -42,7 +42,7 @@ namespace I2PSharp
             StopWaitingForMessages();
             SAMConnection.Dispose();
         }
-        public async void SendString(string message)
+        public async Task SendString(string message)
         {
             try
             {
@@ -54,7 +54,7 @@ namespace I2PSharp
             }
             
         }
-        public async void SendBytes(byte[] message)
+        public async Task SendBytes(byte[] message)
         {
             try
             {

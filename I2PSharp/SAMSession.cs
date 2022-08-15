@@ -58,10 +58,10 @@ namespace I2PSharp
             else
             {
                 _UsedListenPorts.Add(0);
-            }    
+            }
 
-            string response = await _Connection.SendCommandAsync($"SESSION ADD STYLE=STREAM ID={SubsessionID} {FromPortArgument.argument} {ToPortArgument.argument}"); 
-             var ParsedResponse = Utils.TryParseResponse(response);
+            string response = await _Connection.SendCommandAsync($"SESSION ADD STYLE=STREAM ID={SubsessionID} {FromPortArgument.argument} {ToPortArgument.argument}");
+            var ParsedResponse = Utils.TryParseResponse(response);
             if (ParsedResponse.result == SAMResponseResults.OK)
             {
                 SAMSubsession subsession = new SAMSubsession(_SAMPort, SubsessionID, FromPortArgument.port, ToPortArgument.port);
@@ -93,6 +93,10 @@ namespace I2PSharp
             await _Connection.SendCommandAsync($"SESSION REMOVE ID={ID}");
         }
 
+        public async Task<bool> Ping(string ArbitraryText = "*")
+        {
+            return (await _Connection.SendCommandAsync($"PING {ArbitraryText}") == $"PONG {ArbitraryText}");
+        }
         public async Task<(string PrivateKey, string PublicKey)> GenerateDestinationAsync(SAMSignatures SignatureType = SAMSignatures.DSA_SHA1)
         {
             string response = await _Connection.SendCommandAsync($"DEST GENERATE {SignatureType}");
