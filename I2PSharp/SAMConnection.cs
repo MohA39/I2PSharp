@@ -28,6 +28,7 @@ namespace I2PSharp
 
         public void Dispose()
         {
+            IsConnected = false;
             _IsDisposed = true;
             _networkstream.Dispose();
             _client.Dispose();

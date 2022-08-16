@@ -87,7 +87,7 @@ namespace I2PSharp
                             {
 
                                 string Message = await SAMConnection.ReadString();
-                                if (OnMessage != null)
+                                if (OnMessage != null && SAMConnection.IsConnected)
                                 {
                                     MessageEventArgs args = new MessageEventArgs(Message);
 
