@@ -31,7 +31,7 @@ namespace I2PSharp
 
             foreach (string KeyValuePair in ResponseSplit.Where(x => x.Contains("=")))
             {
-                string[] KeyValuePairSplit = KeyValuePair.Split('='); 
+                string[] KeyValuePairSplit = KeyValuePair.Split(new char[] { '=' }, 2); 
                 ResponseDict.Add(KeyValuePairSplit[0], KeyValuePairSplit[1].Replace("\"", ""));
             }
 
