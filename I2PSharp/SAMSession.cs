@@ -1,23 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
-using System.Net;
-using System.Net.Sockets;
-using System.Net.NetworkInformation;
-using System.Linq;
 
 namespace I2PSharp
 {
     public class SAMSession
     {
 
-        private int _SAMPort;
-        private SAMConnection _Connection;
-        private List<int> _UsedListenPorts = new List<int>();
+        private readonly int _SAMPort;
+        private readonly SAMConnection _Connection;
+        private readonly List<int> _UsedListenPorts = new List<int>();
 
-        private Random _random = new Random();
+        private readonly Random _random = new Random();
         public SAMSession(int SAMPort = 7656)
         {
 
@@ -48,8 +42,8 @@ namespace I2PSharp
 
             string SubsessionID = string.IsNullOrEmpty(ID) ? Utils.GenID(32, 64) : ID;
 
-            var FromPortArgument = PortToCommandArgument("FROM_PORT", FromPort);
-            var ToPortArgument = PortToCommandArgument("TO_PORT", ToPort);
+            (string argument, int? port) FromPortArgument = PortToCommandArgument("FROM_PORT", FromPort);
+            (string argument, int? port) ToPortArgument = PortToCommandArgument("TO_PORT", ToPort);
 
             if (FromPortArgument.port.HasValue)
             {
@@ -61,7 +55,7 @@ namespace I2PSharp
             }
 
             string response = await _Connection.SendCommandAsync($"SESSION ADD STYLE=STREAM ID={SubsessionID} {FromPortArgument.argument} {ToPortArgument.argument}");
-            var ParsedResponse = Utils.TryParseResponse(response);
+            (SAMResponseResults result, Dictionary<string, string> response) ParsedResponse = Utils.TryParseResponse(response);
             if (ParsedResponse.result == SAMResponseResults.OK)
             {
                 SAMSubsession subsession = new SAMSubsession(_SAMPort, SubsessionID, FromPortArgument.port, ToPortArgument.port);
@@ -75,7 +69,7 @@ namespace I2PSharp
         public async Task<string> LookupAsync(string name)
         {
             string response = await _Connection.SendCommandAsync($"NAMING LOOKUP NAME={name}");
-            var ParsedResponse = Utils.TryParseResponse(response);
+            (SAMResponseResults result, Dictionary<string, string> response) ParsedResponse = Utils.TryParseResponse(response);
 
             if (ParsedResponse.result == SAMResponseResults.OK)
             {
@@ -95,12 +89,12 @@ namespace I2PSharp
 
         public async Task<bool> Ping(string ArbitraryText = "*")
         {
-            return (await _Connection.SendCommandAsync($"PING {ArbitraryText}") == $"PONG {ArbitraryText}");
+            return await _Connection.SendCommandAsync($"PING {ArbitraryText}") == $"PONG {ArbitraryText}";
         }
         public async Task<(string PrivateKey, string PublicKey)> GenerateDestinationAsync(SAMSignatures SignatureType = SAMSignatures.DSA_SHA1)
         {
             string response = await _Connection.SendCommandAsync($"DEST GENERATE {SignatureType}");
-            var ParsedResponse = Utils.TryParseResponse(response);
+            (SAMResponseResults result, Dictionary<string, string> response) ParsedResponse = Utils.TryParseResponse(response);
 
             return (ParsedResponse.response["PRIV"], ParsedResponse.response["PUB"]);
         }

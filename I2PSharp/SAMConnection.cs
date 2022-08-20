@@ -1,14 +1,10 @@
 ﻿
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using System.Diagnostics;
 
 namespace I2PSharp
 {
@@ -17,7 +13,7 @@ namespace I2PSharp
 
         public bool IsConnected { get; private set; } = false;
         private readonly int _port;
-        private TcpClient _client = new TcpClient();
+        private readonly TcpClient _client = new TcpClient();
         private NetworkStream _networkstream;
         private StreamReader _streamreader;
         private bool _IsDisposed = false;
@@ -39,7 +35,7 @@ namespace I2PSharp
 
             _networkstream = _client.GetStream();
             _streamreader = new StreamReader(_networkstream, Encoding.UTF8);
-            var CommandResult = await SendCommandAsync("HELLO VERSION");
+            string CommandResult = await SendCommandAsync("HELLO VERSION");
             if (Utils.TryParseResponse(CommandResult).result == SAMResponseResults.OK)
             {
                 IsConnected = true;
@@ -68,7 +64,7 @@ namespace I2PSharp
             while (!_IsDisposed)
             {
                 if (timeout > 0)
-                { 
+                {
                     if ((DateTime.Now - starttime).TotalMilliseconds > timeout)
                     {
                         return null;
@@ -82,7 +78,7 @@ namespace I2PSharp
                     {
                         TotalBytesRead += await _networkstream.ReadAsync(BytesRead, TotalBytesRead, count - TotalBytesRead);
                     }
-                    
+
                     return BytesRead;
                 }
                 catch (InvalidOperationException) // To mitigate "The stream is currently in use by a previous operation on the stream."

@@ -1,7 +1,7 @@
 ﻿using System;
-using System.Threading.Tasks;
-using System.Threading;
 using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace I2PSharp
 {
@@ -12,7 +12,7 @@ namespace I2PSharp
     }
     public class PeerConnection : IDisposable
     {
-        
+
         private static int _NextID { get; set; } = 0;
         public int ID { get; private set; }
         public ReadModes ReadMode { get; private set; } = ReadModes.String;
@@ -52,7 +52,7 @@ namespace I2PSharp
             {
                 DisconnectLogic();
             }
-            
+
         }
         public async Task SendBytes(byte[] message)
         {
@@ -64,17 +64,20 @@ namespace I2PSharp
             {
                 DisconnectLogic();
             }
-            
+
         }
 
         public void WaitForMessages()
         {
-            if (_IsWaitingForMessages || ReadMode != ReadModes.String) return;
+            if (_IsWaitingForMessages || ReadMode != ReadModes.String)
+            {
+                return;
+            }
 
             WaitForMessagesCancellationSource = new CancellationTokenSource();
             _WaitForMessagesThread = new Thread(new ThreadStart(async () =>
             {
-                
+
                 _IsWaitingForMessages = true;
                 while (_IsWaitingForMessages)
                 {
@@ -95,11 +98,11 @@ namespace I2PSharp
                                 }
                             }, WaitForMessagesCancellationSource.Token);
                         }
-                        catch(TaskCanceledException)
+                        catch (TaskCanceledException)
                         {
                             return;
                         }
-                        
+
                     }
                     catch (IOException)
                     {
@@ -114,10 +117,14 @@ namespace I2PSharp
 
         public async Task<byte[]> ReadBytes(int Count, int timeout = 0)
         {
-            if (ReadMode == ReadModes.String) throw new InvalidOperationException("Cannot read bytes in string ReadMode");
+            if (ReadMode == ReadModes.String)
+            {
+                throw new InvalidOperationException("Cannot read bytes in string ReadMode");
+            }
+
             try
             {
-                return await SAMConnection.ReadBytes(Count, 0);
+                return await SAMConnection.ReadBytes(Count, timeout);
             }
             catch (IOException)
             {
@@ -129,12 +136,20 @@ namespace I2PSharp
 
         public void StopWaitingForMessages()
         {
+            if (!_IsWaitingForMessages)
+            {
+                return;
+            }
             _IsWaitingForMessages = false;
             WaitForMessagesCancellationSource.Cancel();
         }
         public void SetReadMode(ReadModes readMode)
         {
-            if (readMode == ReadMode) return;
+            if (readMode == ReadMode)
+            {
+                return;
+            }
+
             ReadMode = readMode;
 
             if (ReadMode == ReadModes.Byte)
@@ -148,10 +163,7 @@ namespace I2PSharp
 
         private void DisconnectLogic()
         {
-            if (OnDisconnect != null)
-            {
-                OnDisconnect(this, new DisconnectEventArgs());
-            }
+            OnDisconnect?.Invoke(this, new DisconnectEventArgs());
 
             Dispose();
         }

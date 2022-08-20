@@ -1,22 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using System.Net;
-using System.Net.Sockets;
-using System.IO;
-using System.Threading;
-using System.Linq;
 
 namespace I2PSharp
 {
 
     public class SAMSubsession
     {
-        private int _SAMPort;
+        private readonly int _SAMPort;
         public string ID { get; private set; }
-        private int? _FromPort;
-        private int? _ToPort;
+        private readonly int? _FromPort;
+        private readonly int? _ToPort;
 
 
         public bool IsAcceptingConnections { get; private set; }
@@ -42,7 +35,7 @@ namespace I2PSharp
             await connection.ConnectAsync();
             string Response = await connection.SendCommandAsync($"STREAM CONNECT ID={ID} DESTINATION={Destination} FROM_PORT={FromPort} TO_PORT={ToPort}");
 
-            var ParsedResponse = Utils.TryParseResponse(Response);
+            (SAMResponseResults result, Dictionary<string, string> response) ParsedResponse = Utils.TryParseResponse(Response);
             if (ParsedResponse.result == SAMResponseResults.OK)
             {
 
@@ -75,7 +68,7 @@ namespace I2PSharp
             await connection.ConnectAsync();
             IsAcceptingConnections = true;
             string Response = await connection.SendCommandAsync($"STREAM ACCEPT ID={ID}");
-            var ParsedResponse = Utils.TryParseResponse(Response);
+            (SAMResponseResults result, Dictionary<string, string> response) ParsedResponse = Utils.TryParseResponse(Response);
             if (ParsedResponse.result == SAMResponseResults.OK)
             {
 
