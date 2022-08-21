@@ -41,6 +41,13 @@ namespace I2PSharp
                 IsConnected = true;
             }
         }
+        public async Task EndAsync()
+        {
+            if (IsConnected)
+            {
+                await SendCommandAsync($"EXIT");
+            }
+        }
 
         public async Task<string> SendCommandAsync(string Command)
         {

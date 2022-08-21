@@ -24,16 +24,16 @@ namespace I2PSharp
             await _Connection.ConnectAsync();
         }
 
-        public async Task CreateSessionAsync(string Destination = "TRANSIENT")
+        public async Task CreateSessionAsync(string Destination = "TRANSIENT", params string[] Options)
         {
             if (!_Connection.IsConnected)
             {
                 throw new InvalidOperationException("Error: Not connected to I2P SAM. Please use ConnectAsync() to connect.");
             }
-            await _Connection.SendCommandAsync($"SESSION CREATE STYLE=PRIMARY ID={Utils.GenID(32, 64)} DESTINATION={Destination}");
+            await _Connection.SendCommandAsync($"SESSION CREATE STYLE=PRIMARY ID={Utils.GenID(32, 64)} DESTINATION={Destination} {string.Join(" ", Options)}");
         }
 
-        public async Task<SAMSubsession> CreateSTREAMSubsessionAsync(string ID = null, int? FromPort = null, int? ToPort = null)
+        public async Task<SAMSubsession> CreateSTREAMSubsessionAsync(string ID = null, int? FromPort = null, int? ToPort = null, params string[] Options)
         {
             if (!_Connection.IsConnected)
             {
@@ -54,7 +54,7 @@ namespace I2PSharp
                 _UsedListenPorts.Add(0);
             }
 
-            string response = await _Connection.SendCommandAsync($"SESSION ADD STYLE=STREAM ID={SubsessionID} {FromPortArgument.argument} {ToPortArgument.argument}");
+            string response = await _Connection.SendCommandAsync($"SESSION ADD STYLE=STREAM ID={SubsessionID} {FromPortArgument.argument} {ToPortArgument.argument} {string.Join(" ", Options)}");
             (SAMResponseResults result, Dictionary<string, string> response) ParsedResponse = Utils.TryParseResponse(response);
             if (ParsedResponse.result == SAMResponseResults.OK)
             {
@@ -82,12 +82,17 @@ namespace I2PSharp
 
         }
 
-        public async Task EndSubsession(string ID)
+        public async Task EndSubsessionAsync(string ID)
         {
             await _Connection.SendCommandAsync($"SESSION REMOVE ID={ID}");
         }
 
-        public async Task<bool> Ping(string ArbitraryText = "*")
+        public async Task EndAsync()
+        {
+            await _Connection.EndAsync();
+            _Connection.Dispose();
+        }
+        public async Task<bool> PingAsync(string ArbitraryText = "*")
         {
             return await _Connection.SendCommandAsync($"PING {ArbitraryText}") == $"PONG {ArbitraryText}";
         }
